@@ -6,13 +6,14 @@ import { useAuthStore } from '../stores/auth'
 const router = useRouter()
 const auth = useAuthStore()
 
-const isLogin = ref(true)
+const isLogin = ref(true) // toggles between login and register mode
 const username = ref('')
 const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
 
+// handles both login and register — isLogin decides which one to call to use
 async function submit() {
   error.value = ''
   loading.value = true
@@ -22,7 +23,7 @@ async function submit() {
     } else {
       await auth.register(username.value, email.value, password.value)
     }
-    router.push('/')
+    router.push('/') // go to notes page on success
   } catch (e: any) {
     error.value = e.response?.data?.message ?? 'Something went wrong'
   } finally {

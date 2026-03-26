@@ -22,18 +22,21 @@ public class NoteService
     {
         using var c = Conn();
 
+        // always filter by userId so users only see their own notes
         var sql = "SELECT * FROM Notes WHERE UserId=@UserId";
 
+        // only add the search filter when the user actually typed something
         if (!string.IsNullOrEmpty(search))
         {
             sql += " AND (Title LIKE @S OR Content LIKE @S)";
         }
 
+        // tack on the right ORDER BY based on what the user selected
         sql += sort switch
         {
             "oldest" => " ORDER BY CreatedAt ASC",
             "title"  => " ORDER BY Title ASC",
-            _        => " ORDER BY CreatedAt DESC"
+            _        => " ORDER BY CreatedAt DESC" // default to newest first
         };
 
         return await c.QueryAsync<Note>(
@@ -46,6 +49,7 @@ public class NoteService
         );
     }
 
+    // get one note — the UserId check means you can't fetch someone else's note
     public async Task<Note?> GetByIdAsync(int id, int userId)
     {
         using var c = Conn();
@@ -60,6 +64,7 @@ public class NoteService
     {
         using var c = Conn();
 
+        // insert the row and get back the auto-generated id
         var sql = @"
             INSERT INTO Notes (UserId, Title, Content)
             VALUES (@UserId, @Title, @Content);
@@ -75,6 +80,7 @@ public class NoteService
             }
         );
 
+        // fetch the full row so the response includes the timestamps in db
         return (await GetByIdAsync(id, userId))!;
     }
 
@@ -82,6 +88,7 @@ public class NoteService
     {
         using var c = Conn();
 
+        // UpdatedAt is handled automatically by the db on timestamp
         var sql = @"
             UPDATE Notes
             SET Title=@Title,
@@ -99,6 +106,7 @@ public class NoteService
             }
         );
 
+        // if 0 rows were affected, the note didn't exist or belonged to someone else
         return rows > 0;
     }
 

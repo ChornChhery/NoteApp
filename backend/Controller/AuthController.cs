@@ -9,11 +9,11 @@ using backend.Services;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]")] 
 public class AuthController : ControllerBase
 {
     private readonly UserService _users;
-    private readonly IConfiguration _config;
+    private readonly IConfiguration _config; // reading appsetting
 
     public AuthController(UserService users, IConfiguration config)
     {
@@ -21,6 +21,7 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
+    // POST: api/auth/register
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
@@ -37,6 +38,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    // POST: api/auth/login
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
@@ -53,8 +55,10 @@ public class AuthController : ControllerBase
         });
     }
 
+    // Helper method to build JWT tokent that contains the user's id, name and email
     private string BuildToken(User user)
     {
+        // sign the token with the secret key from appsettings.json
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
         );
@@ -64,6 +68,8 @@ public class AuthController : ControllerBase
             SecurityAlgorithms.HmacSha256
         );
 
+        // claims are the data stored inside the token
+        // the backend reads these on every request to know who is calling
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

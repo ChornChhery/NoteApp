@@ -7,4 +7,4 @@ import './assets/main.css'
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)
-app.mount('#app')
+app.mount('#app')  // attach Vue to the #app div in index.html

@@ -8,7 +8,7 @@ namespace backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize] // all endpoints in this controller require authentication
 public class NotesController : ControllerBase
 {
     private readonly NoteService _repo;
@@ -18,11 +18,13 @@ public class NotesController : ControllerBase
         _repo = repo;
     }
 
+    // reads the logged-in user's id out of the JWT token
     private int Uid()
     {
         return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     }
 
+    // GET: api/notes?search=keyword&sort=oldest
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? search,
@@ -32,6 +34,7 @@ public class NotesController : ControllerBase
         return Ok(notes);
     }
 
+    // GET: api/notes/5
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -39,6 +42,7 @@ public class NotesController : ControllerBase
         return note is null ? NotFound() : Ok(note);
     }
 
+    // POST: api/notes
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateNoteDto dto)
     {
@@ -51,6 +55,7 @@ public class NotesController : ControllerBase
         );
     }
 
+    // PUT: api/notes/5
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateNoteDto dto)
     {
@@ -58,6 +63,7 @@ public class NotesController : ControllerBase
         return success ? Ok() : NotFound();
     }
 
+    // DELETE: api/notes/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

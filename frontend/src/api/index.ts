@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+// all api calls go through this file, so we can centralize any auth logic or error handling here
 const api = axios.create({
   baseURL: 'http://localhost:5033/api'
 })
@@ -15,6 +16,7 @@ api.interceptors.request.use(cfg => {
   return cfg
 })
 
+// shape of a note returned from the backend
 export interface Note {
   id: number
   title: string
@@ -24,6 +26,7 @@ export interface Note {
 }
 
 export const notesApi = {
+  // search and sort are passed as query params — backend handles the filtering
   getAll: (search?: string, sort = 'newest') =>
     api.get<Note[]>('/notes', {
       params: { search, sort }

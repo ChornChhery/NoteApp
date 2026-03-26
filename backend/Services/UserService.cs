@@ -18,6 +18,7 @@ public class UserService
         return new MySqlConnection(_cs);
     }
 
+    // used during login to fetch the user and their hashed password
     public async Task<User?> GetByEmailAsync(string email)
     {
         using var c = Conn();
@@ -28,6 +29,7 @@ public class UserService
         );
     }
 
+    // quick check during registration to block duplicate emails
     public async Task<bool> EmailExistsAsync(string email)
     {
         using var c = Conn();
@@ -43,7 +45,8 @@ public class UserService
     public async Task<User> CreateAsync(RegisterDto dto)
     {
         using var c = Conn();
-
+        
+        // hash the password before saving — never store plain text
         var hashed = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
         var sql = @"

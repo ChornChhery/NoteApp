@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(), // clean URLs, no # in the path
   routes: [
     {
       path: '/',
@@ -20,10 +20,12 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStore()
 
+  // not logged in and trying to access a protected page — send to login
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     return '/login'
   }
 
+  // already logged in and going to /login — send to notes instead
   if (to.path === '/login' && auth.isLoggedIn) {
     return '/'
   }

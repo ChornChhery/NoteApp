@@ -19,7 +19,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowVue", p =>
      .AllowAnyHeader()
      .AllowAnyMethod()));
 
-// JWT setup
+// JWT setup authentication 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o => o.TokenValidationParameters = new TokenValidationParameters

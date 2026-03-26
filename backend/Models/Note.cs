@@ -17,6 +17,7 @@ public class CreateNoteDto
     public string? Content { get; set; }
 }
 
+// what the frontend sends when editing a note
 public class UpdateNoteDto
 {
     public string? Title { get; set; } = "";
