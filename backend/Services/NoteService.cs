@@ -2,13 +2,13 @@ using Dapper;
 using MySqlConnector;
 using backend.Models;
 
-namespace backend.Repositories;
+namespace backend.Services;
 
-public class NoteRepository
+public class NoteService
 {
     private readonly string _cs;
 
-    public NoteRepository(IConfiguration config)
+    public NoteService(IConfiguration config)
     {
         _cs = config.GetConnectionString("DefaultConnection")!;
     }

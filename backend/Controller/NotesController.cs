@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using backend.Models;
-using backend.Repositories;
+using backend.Services;
 using System.Security.Claims;
 
 namespace backend.Controllers;
@@ -11,9 +11,9 @@ namespace backend.Controllers;
 [Authorize]
 public class NotesController : ControllerBase
 {
-    private readonly NoteRepository _repo;
+    private readonly NoteService _repo;
 
-    public NotesController(NoteRepository repo)
+    public NotesController(NoteService repo)
     {
         _repo = repo;
     }
@@ -36,7 +36,7 @@ public class NotesController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var note = await _repo.GetByIdAsync(id, Uid());
-        return note == null ? NotFound() : Ok(note);
+        return note is null ? NotFound() : Ok(note);
     }
 
     [HttpPost]

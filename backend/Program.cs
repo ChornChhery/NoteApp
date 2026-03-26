@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using backend.Repositories;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register repositories (dependency injection)
-builder.Services.AddScoped<NoteRepository>();
-builder.Services.AddScoped<UserRepository>();
+// Register services (dependency injection)
+builder.Services.AddScoped<NoteService>();
+builder.Services.AddScoped<UserService>();
 
 // Allow Vue dev server on port 5173 to call this API
 builder.Services.AddCors(o => o.AddPolicy("AllowVue", p =>

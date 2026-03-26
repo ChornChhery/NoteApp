@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using backend.Models;
-using backend.Repositories;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -12,10 +12,10 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly UserRepository _users;
+    private readonly UserService _users;
     private readonly IConfiguration _config;
 
-    public AuthController(UserRepository users, IConfiguration config)
+    public AuthController(UserService users, IConfiguration config)
     {
         _users = users;
         _config = config;
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
     {
         var user = await _users.GetByEmailAsync(dto.Email);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+        if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
         {
             return Unauthorized(new { message = "Invalid email or password" });
         }
