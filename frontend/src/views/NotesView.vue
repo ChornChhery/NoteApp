@@ -7,7 +7,7 @@ import { notesApi, type Note } from '../api'
 const router = useRouter()
 const auth = useAuthStore()
 
-// ── State ──────────────────────────────────────────────
+// State
 const notes = ref<Note[]>([])
 const loading = ref(false)
 const search = ref('')
@@ -24,7 +24,7 @@ const saving = ref(false)
 // Detail view state
 const selectedNote = ref<Note | null>(null)
 
-// ── API calls ──────────────────────────────────────────
+// API calls
 async function fetchNotes() {
   loading.value = true
   try {
@@ -71,7 +71,7 @@ async function deleteNote(id: number) {
   if (selectedNote.value?.id === id) selectedNote.value = null
 }
 
-// ── Form helpers ───────────────────────────────────────
+// Form helpers
 function openCreate() {
   editingId.value = null
   formTitle.value = ''
@@ -97,7 +97,7 @@ function closeForm() {
   formError.value = ''
 }
 
-// ── Detail modal ───────────────────────────────────────
+// Detail modal
 function openDetail(note: Note) {
   selectedNote.value = note
 }
@@ -106,13 +106,13 @@ function closeDetail() {
   selectedNote.value = null
 }
 
-// ── Auth ───────────────────────────────────────────────
+// Auth 
 function logout() {
   auth.logout()
   router.push('/login')
 }
 
-// ── Helpers ────────────────────────────────────────────
+// Helpers
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric'
