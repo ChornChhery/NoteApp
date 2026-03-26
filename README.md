@@ -38,9 +38,9 @@ Noteapp/
 │   ├── Models/
 │   │   ├── Note.cs                 ← Note class + CreateNoteDto + UpdateNoteDto
 │   │   └── User.cs                 ← User class + RegisterDto + LoginDto
-│   ├── Repositories/
-│   │   ├── NoteRepository.cs       ← All SQL queries for notes using Dapper
-│   │   └── UserRepository.cs       ← SQL queries for user register and login
+│   ├── Services/
+│   │   ├── NoteService.cs          ← All SQL queries for notes using Dapper
+│   │   └── UserService.cs          ← SQL queries for user register and login
 │   ├── appsettings.json            ← MySQL connection string + JWT config
 │   └── Program.cs                  ← App startup, services, CORS, JWT, Swagger
 │
@@ -77,10 +77,10 @@ Defines the shape of a Note in C#. The `Note` class maps directly to the `Notes`
 **`Models/User.cs`**
 Same concept for users. `RegisterDto` and `LoginDto` define what the frontend sends when registering or logging in.
 
-**`Repositories/NoteRepository.cs`**
+**`Services/NoteService.cs`**
 Contains all database queries for notes using Dapper. Every method opens a MySQL connection, runs a parameterized SQL query, and returns the result. All queries include `UserId` so users can never access another user's notes.
 
-**`Repositories/UserRepository.cs`**
+**`Services/UserService.cs`**
 Handles finding a user by email (for login) and creating a new user (for register). Passwords are hashed with BCrypt before storing.
 
 **`Controllers/AuthController.cs`**
