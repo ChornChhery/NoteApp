@@ -1,63 +1,71 @@
 using Dapper;
-using Microsoft.Data.SqlClient;
+using MySqlConnector;
 using backend.Models;
 
 namespace backend.Repositories;
 
 public class NoteRepository
 {
-    private readonly string _connectionString;
+    private readonly string _cs;
 
     public NoteRepository(IConfiguration config)
     {
-        // Read connection string from appsettings.json
-        _connectionString = config.GetConnectionString("DefaultConnection")!;
+        _cs = config.GetConnectionString("DefaultConnection")!;
     }
 
-    // Helper: creates a new database connection each time
-    private SqlConnection GetConnection()
+    private MySqlConnection Conn()
     {
-        return new SqlConnection(_connectionString);
+        return new MySqlConnection(_cs);
     }
 
-    public async Task<IEnumerable<Note>> GetAllAsync(int userId)
+    public async Task<IEnumerable<Note>> GetAllAsync(int userId, string? search, string sort)
     {
-        using var conn = GetConnection();
+        using var c = Conn();
 
-        var sql = @"
-            SELECT *
-            FROM Notes
-            WHERE UserId = @UserId
-            ORDER BY CreatedAt DESC";
+        var sql = "SELECT * FROM Notes WHERE UserId=@UserId";
 
-        return await conn.QueryAsync<Note>(sql, new { UserId = userId });
+        if (!string.IsNullOrEmpty(search))
+        {
+            sql += " AND (Title LIKE @S OR Content LIKE @S)";
+        }
+
+        sql += sort switch
+        {
+            "oldest" => " ORDER BY CreatedAt ASC",
+            "title"  => " ORDER BY Title ASC",
+            _        => " ORDER BY CreatedAt DESC"
+        };
+
+        return await c.QueryAsync<Note>(
+            sql,
+            new
+            {
+                UserId = userId,
+                S = $"%{search}%"
+            }
+        );
     }
 
     public async Task<Note?> GetByIdAsync(int id, int userId)
     {
-        using var conn = GetConnection();
+        using var c = Conn();
 
-        var sql = @"
-            SELECT *
-            FROM Notes
-            WHERE Id = @Id AND UserId = @UserId";
-
-        return await conn.QueryFirstOrDefaultAsync<Note>(
-            sql,
+        return await c.QueryFirstOrDefaultAsync<Note>(
+            "SELECT * FROM Notes WHERE Id=@Id AND UserId=@UserId",
             new { Id = id, UserId = userId }
         );
     }
 
     public async Task<Note> CreateAsync(int userId, CreateNoteDto dto)
     {
-        using var conn = GetConnection();
+        using var c = Conn();
 
         var sql = @"
             INSERT INTO Notes (UserId, Title, Content)
-            OUTPUT INSERTED.Id
-            VALUES (@UserId, @Title, @Content)";
+            VALUES (@UserId, @Title, @Content);
+            SELECT LAST_INSERT_ID();";
 
-        var id = await conn.ExecuteScalarAsync<int>(
+        var id = await c.ExecuteScalarAsync<int>(
             sql,
             new
             {
@@ -72,16 +80,15 @@ public class NoteRepository
 
     public async Task<bool> UpdateAsync(int id, int userId, UpdateNoteDto dto)
     {
-        using var conn = GetConnection();
+        using var c = Conn();
 
         var sql = @"
             UPDATE Notes
-            SET Title = @Title,
-                Content = @Content,
-                UpdatedAt = GETDATE()
-            WHERE Id = @Id AND UserId = @UserId";
+            SET Title=@Title,
+                Content=@Content
+            WHERE Id=@Id AND UserId=@UserId";
 
-        var rows = await conn.ExecuteAsync(
+        var rows = await c.ExecuteAsync(
             sql,
             new
             {
@@ -92,19 +99,15 @@ public class NoteRepository
             }
         );
 
-        return rows > 0; // true if any row was updated
+        return rows > 0;
     }
 
     public async Task<bool> DeleteAsync(int id, int userId)
     {
-        using var conn = GetConnection();
+        using var c = Conn();
 
-        var sql = @"
-            DELETE FROM Notes
-            WHERE Id = @Id AND UserId = @UserId";
-
-        var rows = await conn.ExecuteAsync(
-            sql,
+        var rows = await c.ExecuteAsync(
+            "DELETE FROM Notes WHERE Id=@Id AND UserId=@UserId",
             new { Id = id, UserId = userId }
         );
 
